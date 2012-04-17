@@ -75,19 +75,19 @@
                 
                 if(i==0)
                 {
-                    path += "M"+pathPoint.x+","+pathPoint.y;
+                    path += moveTo(pathPoint);//"M"+pathPoint.x+","+pathPoint.y;
                     firstpoint = pathPoint;
                     
                     
-                    animation_path += "M"+axisLabelPoint.x+","+axisLabelPoint.y;
+                    animation_path += moveTo(axisLabelPoint);//"M"+axisLabelPoint.x+","+axisLabelPoint.y;
                     animation_firstpoint = axisLabelPoint;
                     
                 }
                 else
                 {
-                    path += "L"+pathPoint.x+","+pathPoint.y;
+                    path += lineTo(pathPoint);//"L"+pathPoint.x+","+pathPoint.y;
                     
-                    animation_path += "L"+axisLabelPoint.x+","+axisLabelPoint.y;
+                    animation_path += lineTo(axisLabelPoint);//"L"+axisLabelPoint.x+","+axisLabelPoint.y;
                 }   
                 
               
@@ -136,9 +136,9 @@
                 
             }
             
-            path += "L"+firstpoint.x+","+firstpoint.y;
+            path += lineTo(firstpoint);//"L"+firstpoint.x+","+firstpoint.y;
             
-            animation_path += "L"+animation_firstpoint.x+","+animation_firstpoint.y;
+            animation_path += lineTo(animation_firstpoint);// "L"+animation_firstpoint.x+","+animation_firstpoint.y;
                               
                               
             //drawn here so that when it is pushed back, it still ends up in front of daatPath and center circle, but not in front of data label circles                  
