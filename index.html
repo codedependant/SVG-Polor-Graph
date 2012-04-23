@@ -16,7 +16,7 @@
 
     */
         
-    (function(){
+    
         
     var month=new Array();
     month[0]="January";
@@ -55,6 +55,13 @@
         
         window.onload = function() {
                 
+                demo();
+            
+        }
+        
+        function demo()
+        {
+        
             var data = [];
             var labels = [];
             var dataAmount = 0;
@@ -79,10 +86,8 @@
             
             
             
-            generateGraph(data);
-            
+            generateGraph(data);        
         }
-        
         
             function generateGraph(data, labels)
             {
@@ -385,7 +390,7 @@
             
         }
 
-    })();
+    
     </script>
     
     
@@ -394,7 +399,7 @@
 </head>
 <body>
     <h1>SVG Polor Graph</h1>
-    <button onclick="generateGraph();">Regenerate</button>
+    <button onclick="demo();">Regenerate</button>
     <div id="canvas">
         
     </div>
