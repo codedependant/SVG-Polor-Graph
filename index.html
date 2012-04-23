@@ -4,9 +4,19 @@
 <head>
     <title>Arc Chart</title>
     
+    
+    
     <script type="application/x-javascript" src="raphael-min.js"></script>
     
     <script type="application/x-javascript">
+        
+    /*
+      TO DO LIST
+      
+
+    */
+        
+    (function(){
         
     var month=new Array();
     month[0]="January";
@@ -26,14 +36,14 @@
         var paper;
         var center;
         
-        var graphRadius = 200;
-        var graphRadiusMax = 300;
+        var graphRadiusMin = 300;
+        var graphRadiusMax = 400;
         
         
         var titleText = "Some Graph for \n some data";
         
-        var dataLabelDistance = graphRadius * 0.2;
-        var axisLabelDistance = graphRadius * 0.1;
+        var dataLabelDistance = graphRadiusMin * 0.2;
+        var axisLabelDistance = graphRadiusMin * 0.1;
         
         
         var pointsCount = 12;
@@ -41,132 +51,200 @@
         var canvasWidth = 1000;
         var cancasHeight = 1000;
         
+        var gridCircleNumber = 10
         
-        window.onload = function() { 
-            // Creates canvas 320 × 200 at 10, 50
-            paper = Raphael("canvas", canvasWidth, cancasHeight);
-            center = {x:paper.width/2,y:paper.height/2};
-            
-            var title = paper.text(center.x, center.y,titleText)
-                        .attr("font-size","14px")
-                        ;
-
-            var pathPoints = generatePoints();
-            
-            
-            var firstpoint;
-            
-            var animation_firstpoint;
-            
-            var path = "";
-            var animation_path = "";
-            
-            console.log(pathPoints.length); 
-            
-            var dataLabels = [];
-            
-            for (var i = 0; i < pathPoints.length; i++)
-            {
+        window.onload = function() {
                 
+            var data = [];
+            var labels = [];
+            var dataAmount = 0;
+            
+            for (var i=0; i < pointsCount; i++) {
                 
-                var pathPoint = pathPoints[i];
-                var dataLabelPoint = calculateCirclePoint(center,(pathPoint.dataRadius + dataLabelDistance),pathPoint.angle);                            
-                var axisLabelPoint = calculateCirclePoint(center,(graphRadius-axisLabelDistance),pathPoint.angle);                  
-                
-                if(i==0)
+                if(i!=0)
                 {
-                    path += moveTo(pathPoint);//"M"+pathPoint.x+","+pathPoint.y;
-                    firstpoint = pathPoint;
-                    
-                    
-                    animation_path += moveTo(axisLabelPoint);//"M"+axisLabelPoint.x+","+axisLabelPoint.y;
-                    animation_firstpoint = axisLabelPoint;
-                    
-                }
-                else
-                {
-                    path += lineTo(pathPoint);//"L"+pathPoint.x+","+pathPoint.y;
-                    
-                    animation_path += lineTo(axisLabelPoint);//"L"+axisLabelPoint.x+","+axisLabelPoint.y;
+                    //dataAmount = Math.random();
+                    if(Math.random() < 0.2 )
+                        dataAmount = dataAmount + Math.random() * -1 * 100;
+                    else
+                        dataAmount = dataAmount + Math.random() * 100;
                 }   
-                
-              
-                            
-                //var c = paper.path("M"+axisLabelPoint.x+" "+axisLabelPoint.y+"L"+pathPoint.x+" "+pathPoint.y);
-                
-                
-                
-                var dataLabel = paper.text(dataLabelPoint.x,dataLabelPoint.y, "point ")
-                .transform("r"+(pathPoint.angle*180/Math.PI +90 ))
-                .attr("font-size","12px")
-                .attr("opacity",0)
-                ;
-                dataLabels.push(dataLabel);
-                
-                paper.circle(pathPoint.x, pathPoint.y, 10)
-                .data("i", i)
-                .attr("opacity",0)
-                .attr("fill","red")
-                .mouseover(function(){
-                    
-                    console.log("over data point "+this.data("i"));
-                    
-                    dataLabels[this.data("i")].attr("opacity",1);
-                    
-                    title.attr("text","data "+this.data("i"));
                     
                     
-                })
-                .mouseout(function(){
-                    console.log("out data point "+this.data("i"));
                     
-                    dataLabels[this.data("i")].attr("opacity",0);
-                    title.attr("text",titleText);
-                });
-                
-                
-                var axisLabel = paper.text(axisLabelPoint.x,axisLabelPoint.y, month[i])
-                .transform("r"+(pathPoint.angle*180/Math.PI +90 ))
-                .attr("opacity",1)
-                .attr("font-size","12px")
-                ;                
-                
-                
-                
-                
+                data.push(dataAmount);
+                if(month[i] !== undefined)
+                    labels.push(month[i]);
             }
             
-            path += lineTo(firstpoint);//"L"+firstpoint.x+","+firstpoint.y;
-            
-            animation_path += lineTo(animation_firstpoint);// "L"+animation_firstpoint.x+","+animation_firstpoint.y;
-                              
-                              
-            //drawn here so that when it is pushed back, it still ends up in front of daatPath and center circle, but not in front of data label circles                  
-            drawGrid(pathPoints);
             
             
-            var centerCircle = paper.circle(center.x, center.y, graphRadius)
-                                .toBack()
-                                .attr("fill","white")
-                                .attr("opacity",1)
-                                ;
-                                
-                                
-            var graph = paper.path(animation_path)
-                        .toBack()
-                       .attr("fill","90-#333-#666");
-                       
-            graph.animate({path:path},600,"bounce");
+            generateGraph(data);
             
-            
-            
-            
-            
-
         }
+        
+        
+            function generateGraph(data, labels)
+            {
+                
+                if(data === undefined || data === null)
+                {
+                    alert("no data given, at least 4 data points needed");
+                    return false;
+                }
+                else if(labels === undefined || labels === null)
+                {
+                    labels = [];
+                    for(var x=0;x < data.length;x++)
+                    {
+                        labels.push("Label "+(x+1));
+                    }
+                    
+                }
+                else if(labels.length < data.length)
+                {
+                    for(var x=0;x < data.length;x++)
+                    {
+                        if(labels[x] === undefined)
+                            labels.push("Label "+(x+1));
+                    }                    
+                }
+                
+                //console.log(data);
+                //console.log(labels);
+                
+                document.getElementById("canvas").innerHTML = "";
+                paper = Raphael("canvas", canvasWidth, cancasHeight);
+                center = {x:paper.width/2,y:paper.height/2};
+                
+                var title = paper.text(center.x, center.y,titleText)
+                            .attr("font-size","14px")
+                            ;
+    
+                var pathPoints = generatePoints(data);
+                
+                
+                var firstpoint;
+                
+                var animation_firstpoint;
+                
+                var path = "";
+                var animation_path = "";
+                
+                
+                
+                var dataLabels = [];
+                
+                for (var i = 0; i < pathPoints.length; i++)
+                {
+                    
+                    
+                    var pathPoint = pathPoints[i];
+                    var dataLabelPoint = calculateCirclePoint(center,(pathPoint.dataRadius + dataLabelDistance),pathPoint.angle);                            
+                    var axisLabelPoint = calculateCirclePoint(center,(graphRadiusMin-axisLabelDistance),pathPoint.angle);                  
+                    
+                    if(i==0)
+                    {
+                        path += moveTo(pathPoint);//"M"+pathPoint.x+","+pathPoint.y;
+                        firstpoint = pathPoint;
+                        
+                        
+                        animation_path += moveTo(axisLabelPoint);//"M"+axisLabelPoint.x+","+axisLabelPoint.y;
+                        animation_firstpoint = axisLabelPoint;
+                        
+                    }
+                    else
+                    {
+                        path += lineTo(pathPoint);//"L"+pathPoint.x+","+pathPoint.y;
+                        
+                        animation_path += lineTo(axisLabelPoint);//"L"+axisLabelPoint.x+","+axisLabelPoint.y;
+                    }   
+                    
+                  
+                                
+                    //var c = paper.path("M"+axisLabelPoint.x+" "+axisLabelPoint.y+"L"+pathPoint.x+" "+pathPoint.y);
+                    
+                    
+                    
+                    var dataLabel = paper.text(dataLabelPoint.x,dataLabelPoint.y, "point ")
+                    .transform("r"+(pathPoint.angle*180/Math.PI +90 ))
+                    .attr("font-size","12px")
+                    .attr("opacity",0)
+                    ;
+                    dataLabels.push(dataLabel);
+                    
+                    paper.circle(pathPoint.x, pathPoint.y, 10)
+                    .data("i", i)
+                    .attr("opacity",0)
+                    .attr("fill","red")
+                    .mouseover(function(){
+                        
+                        console.log("over data point "+this.data("i"));
+                        
+                        dataLabels[this.data("i")].attr("opacity",1);
+                        
+                        title.attr("text","data "+this.data("i"));
+                        
+                        
+                    })
+                    .mouseout(function(){
+                        console.log("out data point "+this.data("i"));
+                        
+                        dataLabels[this.data("i")].attr("opacity",0);
+                        title.attr("text",titleText);
+                    });
+                    
+                    
+                    var axisLabel = paper.text(axisLabelPoint.x,axisLabelPoint.y, month[i])
+                    .transform("r"+(pathPoint.angle*180/Math.PI +90 ))
+                    .attr("opacity",1)
+                    .attr("font-size","12px")
+                    ;                
+                    
+                    
+                    
+                    
+                }
+                
+                path += lineTo(firstpoint);//"L"+firstpoint.x+","+firstpoint.y;
+                
+                animation_path += lineTo(animation_firstpoint);// "L"+animation_firstpoint.x+","+animation_firstpoint.y;
+                                  
+                                  
+                //drawn here so that when it is pushed back, it still ends up in front of daatPath and center circle, but not in front of data label circles                  
+                drawGrid(pathPoints,gridCircleNumber);
+                
+                
+                var centerCircle = paper.circle(center.x, center.y, graphRadiusMin)
+                                    .toBack()
+                                    .attr("fill","white")
+                                    .attr("opacity",1)
+                                    ;
+                                    
+                                    
+                var graph = paper.path(animation_path)
+                            .toBack()
+                           .attr("fill","90-#333-#666");
+                           
+                graph.animate({path:path},600,"bounce");
+                
+                
+                /*
+                var graph = paper.path(animation_path)
+                            .transform("r90")
+                            .toBack()
+                           .attr("fill","90-#333-#666");
+                           
+                graph.animate({path:path,transform:"r0"},1000,"easeIn");
+                */             
+                
+                
+                    return true;
+                }
+        
   
   
-        function drawGrid(pathPoints)
+        function drawGrid(pathPoints,gridCircleNumber)
         {
             var gridLinePath = '';
             for (var i = 0; i < pathPoints.length; i++)
@@ -174,27 +252,26 @@
                             
                 var pathPoint = pathPoints[i];
                 
-                var gridLineStartPoint = calculateCirclePoint(center,graphRadius,pathPoint.angle);
-                var gridLineEndPoint = calculateCirclePoint(center,graphRadius+graphRadiusMax,pathPoint.angle);
+                var gridLineStartPoint = calculateCirclePoint(center,graphRadiusMin,pathPoint.angle);
+                var gridLineEndPoint = calculateCirclePoint(center,graphRadiusMax,pathPoint.angle);
                 
                 gridLinePath += line(gridLineStartPoint,gridLineEndPoint);
                 
             }
             
-            console.log(gridLinePath);            
             paper.path(gridLinePath)
             .attr("stroke","#BFBFBF")
             .attr("stroke-opacity",0.3)
             .toBack()
             ;
             
-            var gridCircleSpacing = (graphRadius + graphRadiusMax)/15;
-            var gridCircleNumber = (graphRadiusMax)/gridCircleSpacing;
+            
+            var gridCircleSpacing = (graphRadiusMax - graphRadiusMin)/gridCircleNumber;
             
             for (var i = 0; i < gridCircleNumber; i++)
             {
                 
-                var gridCircle = paper.circle(center.x,center.y,graphRadius+(i*gridCircleSpacing))
+                var gridCircle = paper.circle(center.x,center.y,graphRadiusMin+(i*gridCircleSpacing))
                 .attr("stroke-opacity",0.3)
                 .attr("stroke","#BFBFBF")
                 .toBack()
@@ -231,7 +308,26 @@
         }
   
 
-        function generatePoints()
+        function calculateDataScale(data)
+        {
+            
+            var min = Math.min.apply( Math, data );
+            
+            var max = Math.max.apply( Math, data );
+
+        
+            var graphRadiusRange = graphRadiusMax - graphRadiusMin;
+            var dataRange = max - min;
+            
+            console.log(min,max,graphRadiusRange,dataRange);
+            
+            return graphRadiusRange/dataRange;
+            
+        }
+  
+  
+  
+        function generatePoints(data)
         {
             
             
@@ -246,16 +342,20 @@
             var firstpoint;
             
                         
-            var dataRadius = graphRadius ;
+            var dataRadius = graphRadiusMin ;
+            
+            
+            var radiusScale = calculateDataScale(data);
+            console.log("radius scale");
+            console.log(radiusScale);
             for (var i = 0; i < pointsCount; i++)
             {
                 
-                dataRadius = graphRadius;
-                dataRadius = graphRadius + Math.random()*graphRadiusMax;
-                /*
-                if(i!=0)
-                    dataRadius +=  Math.random() * (graphRadiusMax/pointsCount) * 2;
-                */
+                
+                dataRadius = graphRadiusMin + data[i] * radiusScale;
+                //dataRadius = graphRadius + Math.random()*graphRadiusMax;
+                
+
                 
                 var angle = slice * i;
                 var cos_angle = Math.cos(angle);
@@ -285,7 +385,7 @@
             
         }
 
-
+    })();
     </script>
     
     
@@ -294,7 +394,9 @@
 </head>
 <body>
     <h1>SVG Polor Graph</h1>
+    <button onclick="generateGraph();">Regenerate</button>
     <div id="canvas">
+        
     </div>
     
     
